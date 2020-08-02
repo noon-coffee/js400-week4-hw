@@ -1,21 +1,22 @@
 const mongoose = require('mongoose');
 
-const userSchema = new mongoose.Schema({
+
+const tokenSchema = new mongoose.Schema({
   //_id
 
-  email: {
+  token: {
     type: String,
     required: true,
-    //create unique index
+    // token values should be unique
     index: true,
     unique: true,
   },
 
-  password: {
+  userId: { 
     type: String,
     required: true,
-  }
+  },
 });
 
 
-module.exports = mongoose.model("users", userSchema);
+module.exports = mongoose.model("tokens", tokenSchema);
