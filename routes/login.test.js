@@ -106,7 +106,7 @@ describe("/login", () => {
       it("should not store token on user", async () => {
         const res = await request(server).post("/login").send(user);
         const token = res.body.token;
-        const users = await User.find();
+        const users = await User.find().lean();
         users.forEach((user) => {
           expect(Object.values(user)).not.toContain(token);
         });
