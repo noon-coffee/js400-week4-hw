@@ -84,24 +84,11 @@ router.post("/signup", async (req, res, next) => {
 
 // Logout:
 // POST /login/logout
-router.post("/logout", async (req, res, next) => {
+router.post("/logout", utils.isUserAuth, async (req, res, next) => {
   try
   {
-    // User should already have user auth Token (already be authenticated)
-    const reqToken = req.headers.authorization;
-    if (!reqToken || reqToken === '') {
-      res.sendStatus(401); return;
-    }
-
-    // verify token
-    const tokenString = utils.parseToken(reqToken);
-    const token = await tokenDAO.get(tokenString);
-    if (!token) {
-      res.sendStatus(401); return;
-    }
-
     // invalidate token
-    await tokenDAO.delete(tokenString);
+    await tokenDAO.delete(req.headers.authorization);
 
     res.sendStatus(200);
   }
@@ -114,7 +101,7 @@ router.post("/logout", async (req, res, next) => {
 
 // Change Password:
 // POST /login/password
-router.post("/password", async (req, res, next) => { 
+router.post("/password", utils.isUserAuth, async (req, res, next) => { 
   try
   {
     const reqPassword = req.body.password;
@@ -122,21 +109,8 @@ router.post("/password", async (req, res, next) => {
       res.status(400).send('password is required'); return; 
     }
 
-    // User should already have user auth Token (already be authenticated)
-    const reqToken = req.headers.authorization;
-    if (!reqToken || reqToken === '') {
-      res.sendStatus(401); return;
-    }
-
-    // verify token
-    const tokenString = utils.parseToken(reqToken);
-    const token = await tokenDAO.get(tokenString);
-    if (!token) {
-      res.sendStatus(401); return;
-    }
-
     // identify user using token
-    const { userId } = token;
+    const userId = req.userId;
     const existingUser = await userDAO.getById(userId);
 
     // persist new User hashed! password cred
