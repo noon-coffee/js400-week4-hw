@@ -61,6 +61,12 @@ router.post("/signup", async (req, res, next) => {
       res.status(400).send('password is required'); return; 
     }
 
+    // verify that email isn't already taken
+    const doesEmailExist = await userDAO.getByEmail(reqEmail);
+    if (doesEmailExist) {
+      res.status(409).send('email is already taken'); return;
+    }
+
     // create and persist User using their signup creds
     // (e.g., email and hashed! password)
     const passwordHash = await bcrypt.hash(reqPassword, numSaltRounds);
