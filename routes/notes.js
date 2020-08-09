@@ -11,7 +11,8 @@ router.post("/", utils.isUserAuth, async (req, res, next) => {
   {
     const reqNoteText = req.body.text;
     if (!reqNoteText || reqNoteText === '') { 
-      res.status(400).send('text is required'); return; 
+      res.status(400).send('text is required'); 
+      return; 
     }
 
     const noteToCreate = { text: reqNoteText, userId: req.userId };
@@ -32,12 +33,14 @@ router.get("/:id", utils.isUserAuth, async (req, res, next) => {
   {
     const noteId = req.params.id;
     if (!noteId || noteId === '') { 
-      res.status(400).send('id param value is required'); return; 
+      res.status(400).send('id param value is required'); 
+      return; 
     }
 
     const note = await noteDAO.getById(req.userId, noteId);
     if (!note) {
-      res.sendStatus(404); return;
+      res.sendStatus(404); 
+      return;
     }
 
     res.json(note);

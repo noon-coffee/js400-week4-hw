@@ -17,7 +17,7 @@ module.exports.getByEmail = async(email) => {
   return User.findOne( { email: email } ).lean();
 }
 
-module.exports.updateById = async(userId, newObj) => {
-  await User.updateOne( { _id: userId }, newObj );
+module.exports.updatePassword = async(userId, newPassword) => {
+  await User.updateOne( { _id: userId }, { $set: {password: newPassword} } );
   return true;
 }

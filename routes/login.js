@@ -16,20 +16,24 @@ router.post("/", async (req, res, next) => {
     const reqEmail = req.body.email;
     const reqPassword = req.body.password;
     if (!reqEmail || reqEmail === '') { 
-      res.status(400).send('email is required'); return; 
+      res.status(400).send('email is required'); 
+      return; 
     }
     if (!reqPassword || reqPassword === '') { 
-      res.status(400).send('password is required'); return; 
+      res.status(400).send('password is required'); 
+      return; 
     }
 
     // verify User creds - both email and password need to match
     const existingUser = await userDAO.getByEmail(reqEmail);
     if (!existingUser) {
-      res.sendStatus(401); return;
+      res.sendStatus(401); 
+      return;
     }
     const isMatch = await bcrypt.compare(reqPassword, existingUser.password);
     if (!isMatch) {
-      res.sendStatus(401); return;
+      res.sendStatus(401); 
+      return;
     }
 
     // generate and persist user auth Token
@@ -55,16 +59,19 @@ router.post("/signup", async (req, res, next) => {
     const reqEmail = req.body.email;
     const reqPassword = req.body.password;
     if (!reqEmail || reqEmail === '') { 
-      res.status(400).send('email is required'); return; 
+      res.status(400).send('email is required'); 
+      return; 
     }
     if (!reqPassword || reqPassword === '') { 
-      res.status(400).send('password is required'); return; 
+      res.status(400).send('password is required'); 
+      return; 
     }
 
     // verify that email isn't already taken
     const doesEmailExist = await userDAO.getByEmail(reqEmail);
     if (doesEmailExist) {
-      res.status(409).send('email is already taken'); return;
+      res.status(409).send('email is already taken'); 
+      return;
     }
 
     // create and persist User using their signup creds
@@ -106,17 +113,13 @@ router.post("/password", utils.isUserAuth, async (req, res, next) => {
   {
     const reqPassword = req.body.password;
     if (!reqPassword || reqPassword === '') { 
-      res.status(400).send('password is required'); return; 
+      res.status(400).send('new password is required'); 
+      return; 
     }
-
-    // identify user using token
-    const userId = req.userId;
-    const existingUser = await userDAO.getById(userId);
 
     // persist new User hashed! password cred
     const passwordHash = await bcrypt.hash(reqPassword, numSaltRounds);
-    const userToUpdate = { email: existingUser.email, password: passwordHash };
-    await userDAO.updateById(userId, userToUpdate);
+    await userDAO.updatePassword(req.userId, passwordHash);
 
     res.sendStatus(200);
   }
